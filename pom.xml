@@ -262,7 +262,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/neo-hornberger/</url>
+			<url>https://maven.pkg.github.com/neo-hornberger/Parent</url>
 		</repository>
 	</distributionManagement>
 	
