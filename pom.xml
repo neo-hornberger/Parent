@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<properties>
+		<encoding>UTF-8</encoding>
+		
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		
+		<lombok.output>${project.build.directory}/generated-sources/delombok</lombok.output>
+	</properties>
+	
+	<groupId>me.neo_0815</groupId>
+	<artifactId>parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.0</version>
+	
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.2.0</version>
+					
+					<configuration>
+						<sourcepath>${lombok.output}</sourcepath>
+						<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>3.2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok-maven-plugin</artifactId>
+					<version>1.18.20.0</version>
+					
+					<configuration>
+						<encoding>${encoding}</encoding>
+						<sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+						<addOutputDirectory>false</addOutputDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
+		<plugins>
+			<plugin>
+				<artifactId>maven-source-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok-maven-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>delombok</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<id>clean-delombok-sources</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						
+						<configuration>
+							<target>
+								<replace dir="${lombok.output}">
+									<include name="**/*.java"/>
+									
+									<replacefilter token="import lombok.NonNull;" value=""/>
+									<replacefilter token="@NonNull" value=""/>
+								</replace>
+							</target>
+						</configuration>
+					</execution>
+					<execution>
+						<id>attach-delombok</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						
+						<configuration>
+							<target>
+								<jar destfile="${project.build.directory}/${project.build.finalName}-delombok.jar"
+								     basedir="${lombok.output}"/>
+								<attachartifact
+										file="${project.build.directory}/${project.build.finalName}-delombok.jar"
+										type="jar" classifier="delombok"/>
+								<delete dir="${lombok.output}"/>
+							</target>
+						</configuration>
+					</execution>
+					<execution>
+						<id>clean-shade</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						
+						<configuration>
+							<target>
+								<move file="${project.build.directory}/${project.build.finalName}.jar"
+								      tofile="${project.build.directory}/${project.build.finalName}-shaded.jar"/>
+								<move file="${project.build.directory}/original-${project.build.finalName}.jar"
+								      tofile="${project.build.directory}/${project.build.finalName}.jar"/>
+								
+								<attachartifact
+										file="${project.build.directory}/${project.build.finalName}-shaded.jar"
+										type="jar" classifier="shaded"/>
+								<attachartifact file="${project.basedir}/pom.xml"
+								                type="pom"/>
+								
+								<available property="option.clean-shade.reduced-pom"
+								           file="${project.basedir}/dependency-reduced-pom.xml"/>
+							</target>
+							<exportAntProperties>true</exportAntProperties>
+						</configuration>
+					</execution>
+					<execution>
+						<id>clean-shade.reduced-pom</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						
+						<configuration>
+							<target if="option.clean-shade.reduced-pom">
+								<attachartifact file="${project.basedir}/dependency-reduced-pom.xml"
+								                type="pom" classifier="shaded"/>
+							</target>
+						</configuration>
+					</execution>
+					<execution>
+						<id>clean-reduced-pom</id>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						
+						<configuration>
+							<target if="option.clean-shade.reduced-pom">
+								<delete file="${project.basedir}/dependency-reduced-pom.xml"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				
+				<executions>
+					<execution>
+						<id>clean-jars</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+						
+						<configuration>
+							<excludeDefaultDirectories>true</excludeDefaultDirectories>
+							<filesets>
+								<fileset>
+									<directory>${project.build.directory}</directory>
+									<includes>
+										<include>*.jar</include>
+									</includes>
+								</fileset>
+							</filesets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter</artifactId>
+				<version>5.8.0-M1</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.20</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	
+	<profiles>
+		<profile>
+			<id>pom</id>
+			<activation>
+				<file>
+					<missing>${basedir}/src</missing>
+				</file>
+			</activation>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-shade-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok-maven-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<phase>initialize</phase>
+								
+								<configuration>
+									<target>
+										<echo>POM Profile</echo>
+									</target>
+								</configuration>
+							</execution>
+							<execution>
+								<id>clean-delombok-sources</id>
+								<phase>none</phase>
+							</execution>
+							<execution>
+								<id>attach-delombok</id>
+								<phase>none</phase>
+							</execution>
+							<execution>
+								<id>clean-shade</id>
+								<phase>none</phase>
+							</execution>
+							<execution>
+								<id>clean-shade.reduced-pom</id>
+								<phase>none</phase>
+							</execution>
+							<execution>
+								<id>clean-reduced-pom</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-clean-plugin</artifactId>
+						
+						<inherited>false</inherited>
+						<executions>
+							<execution>
+								<id>clean-jars</id>
+								<phase>none</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>
