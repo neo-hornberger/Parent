@@ -258,6 +258,14 @@
 		</dependency>
 	</dependencies>
 	
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/neo-hornberger/Parent</url>
+		</repository>
+	</distributionManagement>
+	
 	<profiles>
 		<profile>
 			<id>pom</id>

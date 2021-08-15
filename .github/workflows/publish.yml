@@ -1,9 +1,9 @@
-name: Install
+name: Publish
 
-on: [ push, workflow_dispatch ]
+on: [ workflow_dispatch ]
 
 jobs:
-  install:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,5 +13,7 @@ jobs:
         with:
           java-version: 11
           distribution: adopt
-      - name: Install project
-        run: mvn --batch-mode install
+      - name: Publish project
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
