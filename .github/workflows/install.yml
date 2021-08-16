@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Download Java JDK (Oracle ${{ matrix.java_version }})
         uses: sormuras/download-jdk@v1
-        if: ${{ matrix.java_distribution == jdkfile }}
+        if: ${{ matrix.java_distribution == 'jdkfile' }}
         with:
           feature: ${{ matrix.java_version }}
       - name: Setup Java JDK (${{ matrix.java_distribution }} ${{ matrix.java_version }})
