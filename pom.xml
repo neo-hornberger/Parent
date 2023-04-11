@@ -146,11 +146,8 @@
 						
 						<configuration>
 							<target>
-								<jar destfile="${project.build.directory}/${project.build.finalName}-delombok.jar"
-								     basedir="${lombok.output}"/>
-								<attachartifact
-										file="${project.build.directory}/${project.build.finalName}-delombok.jar"
-										type="jar" classifier="delombok"/>
+								<jar destfile="${project.build.directory}/${project.build.finalName}-delombok.jar" basedir="${lombok.output}"/>
+								<attachartifact file="${project.build.directory}/${project.build.finalName}-delombok.jar" type="jar" classifier="delombok"/>
 								<delete dir="${lombok.output}"/>
 							</target>
 						</configuration>
@@ -164,19 +161,13 @@
 						
 						<configuration>
 							<target>
-								<move file="${project.build.directory}/${project.build.finalName}.jar"
-								      tofile="${project.build.directory}/${project.build.finalName}-shaded.jar"/>
-								<move file="${project.build.directory}/original-${project.build.finalName}.jar"
-								      tofile="${project.build.directory}/${project.build.finalName}.jar"/>
+								<move file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${project.build.finalName}-shaded.jar"/>
+								<move file="${project.build.directory}/original-${project.build.finalName}.jar" tofile="${project.build.directory}/${project.build.finalName}.jar"/>
 								
-								<attachartifact
-										file="${project.build.directory}/${project.build.finalName}-shaded.jar"
-										type="jar" classifier="shaded"/>
-								<attachartifact file="${project.basedir}/pom.xml"
-								                type="pom"/>
+								<attachartifact file="${project.build.directory}/${project.build.finalName}-shaded.jar" type="jar" classifier="shaded"/>
+								<attachartifact file="${project.basedir}/pom.xml" type="pom"/>
 								
-								<available property="option.clean-shade.reduced-pom"
-								           file="${project.basedir}/dependency-reduced-pom.xml"/>
+								<available property="option.clean-shade.reduced-pom" file="${project.basedir}/dependency-reduced-pom.xml"/>
 							</target>
 							<exportAntProperties>true</exportAntProperties>
 						</configuration>
@@ -190,8 +181,7 @@
 						
 						<configuration>
 							<target if="option.clean-shade.reduced-pom">
-								<attachartifact file="${project.basedir}/dependency-reduced-pom.xml"
-								                type="pom" classifier="shaded"/>
+								<attachartifact file="${project.basedir}/dependency-reduced-pom.xml" type="pom" classifier="shaded"/>
 							</target>
 						</configuration>
 					</execution>
@@ -253,7 +243,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.20</version>
+			<version>1.18.26</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
